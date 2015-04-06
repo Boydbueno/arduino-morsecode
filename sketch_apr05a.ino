@@ -33,7 +33,7 @@ void loop() {
         // Measure input duration time
         inputDuration = millis() - inputTime;
 
-        if(inputDuration <= 30) {
+        if(inputDuration <= 55) {
            return; 
         }
         Serial.println(inputDuration);
@@ -44,13 +44,20 @@ void loop() {
 
         chainDuration = millis();
 
+        if(chainLength == 5) {
+          chainLength = 0;  
+        }
+        
         chainLength++;
-
+                
         if (isShortPress()) {
           durationChain[chainLength-1] = SHORT;
+        } else if(isVeryLongPress()) {
+          removePreviousCharacter();
+          chainLength = 0;
         } else { // long press
           durationChain[chainLength-1] = LONG;
-        }
+        } 
        
         if (chainLength > 1) {
           removePreviousCharacter();  
@@ -72,24 +79,70 @@ void outputCharacter() {
     if (chainLength == 1) {
       if (durationChain[0] == SHORT) {
         Keyboard.write('e');  
-      }
-      
-      if (durationChain[0] == LONG) {
-        Keyboard.write('t'); 
-      }   
-    } else if (chainLength == 2) {
-      if (durationChain[0] == SHORT) {
-        if (durationChain[1] == SHORT) {
-          Keyboard.write('i');  
-        } else if (durationChain[1] == LONG) {
-          Keyboard.write('a');
-        }
       } else if (durationChain[0] == LONG) {
-        if(durationChain[1] == SHORT) {
+        Keyboard.write('t'); 
+      }
+    } else if (chainLength == 2) {
+      if (durationChain[0] == SHORT && durationChain[1] == SHORT) {
+          Keyboard.write('i');  
+      } else if (durationChain[0] == SHORT && durationChain[1] == LONG) {
+          Keyboard.write('a');
+      } else if (durationChain[0] == LONG && durationChain[1] == SHORT) {
           Keyboard.write('n'); 
-        } else if (durationChain[1] == LONG) {
+      } else if (durationChain[1] == LONG && durationChain[1] == LONG) {
           Keyboard.write('m');
-        } 
+      }
+    } else if (chainLength == 3) {
+       if (durationChain[0] == SHORT && durationChain[1] == SHORT && durationChain[2] == SHORT) {
+          Keyboard.write('s');
+       } else if(durationChain[0] == SHORT && durationChain[1] == SHORT && durationChain[2] == LONG) {
+          Keyboard.write('u'); 
+       } else if(durationChain[0] == SHORT && durationChain[1] == LONG && durationChain[2] == SHORT) {
+          Keyboard.write('r'); 
+       } else if(durationChain[0] == SHORT && durationChain[1] == LONG && durationChain[2] == LONG) {
+          Keyboard.write('w'); 
+       } else if(durationChain[0] == LONG && durationChain[1] == SHORT && durationChain[2] == SHORT) {
+          Keyboard.write('d'); 
+       } else if(durationChain[0] == LONG && durationChain[1] == SHORT && durationChain[2] == LONG) {
+          Keyboard.write('k'); 
+       } else if(durationChain[0] == LONG && durationChain[1] == LONG && durationChain[2] == SHORT) {
+          Keyboard.write('g');
+       } else if(durationChain[0] == LONG && durationChain[1] == LONG && durationChain[2] == LONG) {
+          Keyboard.write('o'); 
+       }
+    } else if (chainLength == 4) {
+      if (durationChain[0] == SHORT && durationChain[1] == SHORT && durationChain[2] == SHORT && durationChain[3] == SHORT) {
+        Keyboard.write('h');
+      } else if (durationChain[0] == SHORT && durationChain[1] == SHORT && durationChain[2] == SHORT && durationChain[3] == LONG) {
+        Keyboard.write('v');
+      } else if (durationChain[0] == SHORT && durationChain[1] == SHORT && durationChain[2] == LONG && durationChain[3] == SHORT) {
+        Keyboard.write('f');
+      } else if (durationChain[0] == SHORT && durationChain[1] == SHORT && durationChain[2] == LONG && durationChain[3] == LONG) {
+        Keyboard.write(176);
+      } else if (durationChain[0] == SHORT && durationChain[1] == LONG && durationChain[2] == SHORT && durationChain[3] == SHORT) {
+        Keyboard.write('l');
+      } else if (durationChain[0] == SHORT && durationChain[1] == LONG && durationChain[2] == SHORT && durationChain[3] == LONG) {
+        Keyboard.write('ä');
+      } else if (durationChain[0] == SHORT && durationChain[1] == LONG && durationChain[2] == LONG && durationChain[3] == SHORT) {
+        Keyboard.write('p');
+      } else if (durationChain[0] == SHORT && durationChain[1] == LONG && durationChain[2] == LONG && durationChain[3] == LONG) {
+        Keyboard.write('j');
+      } else if (durationChain[0] == LONG && durationChain[1] == SHORT && durationChain[2] == SHORT && durationChain[3] == SHORT) {
+        Keyboard.write('b');
+      } else if (durationChain[0] == LONG && durationChain[1] == SHORT && durationChain[2] == SHORT && durationChain[3] == LONG) {
+        Keyboard.write('x');
+      } else if (durationChain[0] == LONG && durationChain[1] == SHORT && durationChain[2] == LONG && durationChain[3] == SHORT) {
+        Keyboard.write('c');
+      } else if (durationChain[0] == LONG && durationChain[1] == SHORT && durationChain[2] == LONG && durationChain[3] == LONG) {
+        Keyboard.write('y');
+      } else if (durationChain[0] == LONG && durationChain[1] == LONG && durationChain[2] == SHORT && durationChain[3] == SHORT) {
+        Keyboard.write('z');
+      } else if (durationChain[0] == LONG && durationChain[1] == LONG && durationChain[2] == SHORT && durationChain[3] == LONG) {
+        Keyboard.write('q');
+      } else if (durationChain[0] == LONG && durationChain[1] == LONG && durationChain[2] == LONG && durationChain[3] == SHORT) {
+        Keyboard.write('ö');
+      } else if (durationChain[0] == LONG && durationChain[1] == LONG && durationChain[2] == LONG && durationChain[3] == LONG) {
+        Keyboard.write(' ');
       }
     }
 }
@@ -103,7 +156,11 @@ void setNewState(int state) {
 }
 
 bool isShortPress() {
-  return inputDuration <= 300;
+  return inputDuration <= 200;
+}
+
+bool isVeryLongPress() {
+  return inputDuration >= 800;
 }
 
 bool isButtonPressed() {
