@@ -1,39 +1,62 @@
 const int buttonPin = 4;          // input pin for pushbutton
 int previousButtonState = LOW;   // for checking the state of a pushButton
 
+int buttonState;
+
 bool timerActive = false;
 long inputTime;
 long inputDuration;
 
+enum duration {
+  SHORT,
+  LONG 
+};
+
+duration durationChain[4];
+int chainLength = 0;
+long chainDuration;
+
 void setup() {
-  // make the pushButton pin an input:
   pinMode(buttonPin, INPUT);
-  // initialize control over the keyboard:
+  chainDuration = millis();
   Keyboard.begin();
 }
 
 void loop() {
-  // read the pushbutton:
-  int buttonState = digitalRead(buttonPin);
-  // if the button state has changed,
-  if (isNewState(buttonState)) {
+  buttonState = digitalRead(buttonPin);
 
-      if (buttonState == HIGH) {
+  if (hasNewButtonState()) {
+
+      if (isButtonPressed()) {
         inputTime = millis();
-        timerActive = true;
-        // Button is pressed, start measuring time
-      } else if(timerActive == true) {
-        // On release and active timer
+      } else if(isButtonReleased())  {
+        // Measure input duration time
         inputDuration = millis() - inputTime;
-        Keyboard.print(inputDuration);
-       
-        if (isShortPress(inputDuration)) {
-          Keyboard.print("Short press");
-        } else { // long press
-          Keyboard.print("Long press");
+
+        if(inputDuration <= 30) {
+           return; 
         }
-        
-        timerActive = false;
+        Serial.println(inputDuration);
+
+        if(millis() - chainDuration >= 1000) {
+          chainLength = 0;
+        }    
+
+        chainDuration = millis();
+
+        chainLength++;
+
+        if (isShortPress()) {
+          durationChain[chainLength-1] = SHORT;
+        } else { // long press
+          durationChain[chainLength-1] = LONG;
+        }
+       
+        if (chainLength > 1) {
+          removePreviousCharacter();  
+        }  
+          
+        outputCharacter();
       }
 
   }
@@ -41,14 +64,52 @@ void loop() {
   setNewState(buttonState);
 }
 
-bool isNewState(int state) {
-  return previousButtonState != state;
+void removePreviousCharacter() {
+  Keyboard.write(8);
+}
+
+void outputCharacter() {
+    if (chainLength == 1) {
+      if (durationChain[0] == SHORT) {
+        Keyboard.write('e');  
+      }
+      
+      if (durationChain[0] == LONG) {
+        Keyboard.write('t'); 
+      }   
+    } else if (chainLength == 2) {
+      if (durationChain[0] == SHORT) {
+        if (durationChain[1] == SHORT) {
+          Keyboard.write('i');  
+        } else if (durationChain[1] == LONG) {
+          Keyboard.write('a');
+        }
+      } else if (durationChain[0] == LONG) {
+        if(durationChain[1] == SHORT) {
+          Keyboard.write('n'); 
+        } else if (durationChain[1] == LONG) {
+          Keyboard.write('m');
+        } 
+      }
+    }
+}
+
+bool hasNewButtonState() {
+  return previousButtonState != buttonState;
 }
 
 void setNewState(int state) {
   previousButtonState = state; 
 }
 
-bool isShortPress(long duration) {
-  return duration <= 300;
+bool isShortPress() {
+  return inputDuration <= 300;
+}
+
+bool isButtonPressed() {
+ return buttonState == HIGH;
+}
+
+bool isButtonReleased() {
+ return buttonState == LOW;
 }
